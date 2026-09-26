@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Schemes collection: Publicly readable without login
+    // Write access denied to regular clients (managed via admin/seed)
+    match /schemes/{schemeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Users collection: Strict ownership
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create, update: if isOwner(userId);
+      allow delete: if false;
+
+      // User-scoped applications subcollection: Strict ownership
+      // Preferred structure: users/{userId}/applications/{applicationId}
+      // - Only authenticated user whose auth.uid matches userId
+      // - User can read (get, list) only their own applications
+      // - User can create, update, delete only their own applications
+      // - Unauthenticated users cannot access applications
+      match /applications/{applicationId} {
+        allow get, list: if isOwner(userId);
+        allow create, update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // User-scoped notifications subcollection: Strict ownership
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // Profiles collection: Keyed by userId, strictly accessible only by the owner
+    match /profiles/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create, update, delete: if isOwner(userId);
+    }
+
+    // Saved Schemes collection: User-scoped items subcollection
+    match /savedSchemes/{userId}/items/{item} {
+      allow read, write: if isOwner(userId);
+    }
+    match /savedSchemes/{savedId} {
+      allow get, list, create, update, delete: if isSignedIn() && (
+        (resource != null && resource.data.userId == request.auth.uid) ||
+        (request.resource != null && request.resource.data.userId == request.auth.uid)
+      );
+    }
+
+    // Notifications collection: User-scoped items subcollection
+    match /notifications/{userId}/items/{item} {
+      allow read, write: if isOwner(userId);
+    }
+    match /notifications/{notificationId} {
+      allow get, list, create, update, delete: if isSignedIn() && (
+        (resource != null && resource.data.userId == request.auth.uid) ||
+        (request.resource != null && request.resource.data.userId == request.auth.uid)
+      );
+    }
+  }
+}

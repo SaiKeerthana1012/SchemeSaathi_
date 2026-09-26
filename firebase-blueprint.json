@@ -1,0 +1,119 @@
+{
+  "entities": {
+    "Scheme": {
+      "title": "Scheme",
+      "description": "Government assistance scheme for micro, small, and medium entrepreneurs.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "shortName": { "type": "string" },
+        "ministry": { "type": "string" },
+        "category": { "type": "string" },
+        "financialAssistance": { "type": "string" },
+        "description": { "type": "string" },
+        "benefits": { "type": "string" },
+        "maxFinancialSupport": { "type": "string" },
+        "officialApplicationUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "category"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Authenticated entrepreneur user account.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["id", "email"]
+    },
+    "Profile": {
+      "title": "Profile",
+      "description": "Entrepreneur demographic and enterprise details.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "personal": { "type": "object" },
+        "business": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "personal", "business"]
+    },
+    "SavedScheme": {
+      "title": "SavedScheme",
+      "description": "Bookmark reference of a saved scheme by a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "schemeId": { "type": "string" },
+        "schemeName": { "type": "string" },
+        "savedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "schemeId"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Application tracking record for a government scheme.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "schemeId": { "type": "string" },
+        "schemeName": { "type": "string" },
+        "status": { "type": "string" },
+        "submissionDate": { "type": "string" },
+        "lastUpdated": { "type": "string" },
+        "userEnteredApplicationId": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "userId", "schemeId", "status"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User notification for application status, initiation, and updates.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "applicationId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "isRead": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "title", "message", "type", "createdAt", "isRead"]
+    }
+  },
+  "firestore": {
+    "/schemes/{schemeId}": {
+      "schema": "Scheme",
+      "description": "Collection of all government schemes. Publicly readable without login."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User metadata collection. Accessible only by the owner."
+    },
+    "/profiles/{userId}": {
+      "schema": "Profile",
+      "description": "User enterprise and demographic profile. Accessible only by the owner."
+    },
+    "/savedSchemes/{savedId}": {
+      "schema": "SavedScheme",
+      "description": "Bookmarks of schemes saved by users. Scoped strictly to the owning user."
+    },
+    "/users/{userId}/applications/{applicationId}": {
+      "schema": "Application",
+      "description": "Application tracking records. Scoped strictly to the owning user."
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Notifications for application status and initiation. Scoped strictly to the owning user."
+    }
+  }
+}

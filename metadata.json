@@ -1,0 +1,6 @@
+{
+  "name": "SchemeSaathi",
+  "description": "AI-Driven Scheme Matching and Guidance for Marginalized Entrepreneurs",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
